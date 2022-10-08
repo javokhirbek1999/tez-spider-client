@@ -1,9 +1,7 @@
-import React, {  useState } from 'react'
+import React, {  useState, useRef, useCallback } from 'react'
 import './App.css';
 import axiosInstance from './axios';
 import { Paper } from '@material-ui/core';
-import { Link as MatUIlink } from '@material-ui/core';
-import { NavLink } from 'react-router-dom';
 import MusicNote from '@mui/icons-material/MusicNote';
 import SurfingIcon from '@mui/icons-material/Surfing';
 import { Button, TextField, CircularProgress } from '@material-ui/core';
@@ -16,15 +14,30 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause'
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SearchIcon from '@mui/icons-material/Search';
-
-import MultiActionAreaCard from './components/MusicCard';
+import ReactAudioPlayer from 'react-audio-player';
 
 
 function App() {
   const theme = useTheme();
 
+  const [audioStatus, changeAudioStatus] = useState(false);
+  const myRef = useRef();
+
+  const startAudio = () => {
+    myRef.current.play();
+
+    changeAudioStatus(true);
+  };
+
+  const pauseAudio = () => {
+    console.log("here");
+    myRef.current.pause();
+    changeAudioStatus(false);
+  };
+ 
   const [statsData, ] = useState({
     loading: true,
     data: [],
@@ -71,9 +84,9 @@ function App() {
       <div id="results-container" component={Paper}>
         <>
         { statsData.loading && songs == null || statsData.loading && songs.length == 0 ?
-          <CircularProgress />: songs.map((song) => {
+          <CircularProgress />: songs.map((song, index) => {
             return (
-              <Card sx={{ display: 'inline-block', marginInline: 1, marginBlock: 1, width: 300, height: 300 }}>
+              <Card key={index} sx={{ display: 'inline-block', marginInline: 1, marginBlock: 1, width: 300, height: 300 }}>
                 <Box sx={{ display: 'inline-block', flexDirection: 'column' }}>
                   <CardContent sx={{  }}>
                     <Typography component="div" variant="h6">
@@ -84,22 +97,20 @@ function App() {
                     </Typography>
                   </CardContent>
                   <Box sx={{ display: 'inline-block', alignItems: 'center', pl: 1, pb: 1 }}>
-                    <IconButton aria-label="previous">
-                      {theme.direction === 'rtl' ? <SkipNextIcon /> : <SkipPreviousIcon />}
-                    </IconButton>
                     <IconButton aria-label="play/pause">
-                      <PlayArrowIcon sx={{ height: 38, width: 38 }} />
-                    </IconButton>
-                    <IconButton aria-label="next">
-                      {theme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
-                    </IconButton>
+                      <audio 
+                        ref={myRef}
+                        src={song.Link} 
+                      />
+                      {audioStatus ? (<PauseIcon sx={{ height: 38, width: 38 }} onClick={() => pauseAudio} />)  : (<PlayArrowIcon sx={{ height: 38, width: 38 }} onClikc={() => startAudio} />)}
+                     </IconButton>
                   </Box>
                 </Box>
                 <CardMedia
                   component="img"
                   sx={{ width: 300, height: 150 }}
                   image="https://freewareshome.com/wp-content/uploads/2022/08/apple-music-4d84eb1deedb9217bf940603688603b0.png"
-                  alt="Live from space album cover"
+                  alt={song.Subtitle}
                 />
               </Card>
             );
