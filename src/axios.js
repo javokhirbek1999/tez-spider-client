@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 // const baseURL = 'http://localhost:4000/'
-const baseURL = 'https://tezspider.herokuapp.com/'
+const baseURL = 'https://tezspider-server.herokuapp.com/'
 
 // const token = localStorage.getItem('token')
 
