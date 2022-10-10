@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// const baseURL = 'https://kiska.herokuapp.com/api/'
 
-const baseURL = 'http://localhost:9090/'
+// const baseURL = 'http://localhost:4000/'
+const baseURL = 'https://tezspider.herokuapp.com/'
 
 // const token = localStorage.getItem('token')
 

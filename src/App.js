@@ -1,4 +1,4 @@
-import React, {  useState, useRef, useCallback } from 'react'
+import React, {  useState } from 'react'
 import './App.css';
 import axiosInstance from './axios';
 import { Paper } from '@material-ui/core';
@@ -9,38 +9,48 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause'
-import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SearchIcon from '@mui/icons-material/Search';
-import ReactAudioPlayer from 'react-audio-player';
+
 
 
 function App() {
-  const theme = useTheme();
 
-  const [audioStatus, changeAudioStatus] = useState(false);
-  const myRef = useRef();
+  const [isPlaying, changeAudioStatus] = useState(false);
 
-  const startAudio = () => {
-    myRef.current.play();
+  const [previous, setPrev] = useState(null)
+  
+  const audio = new Audio(null)
 
-    changeAudioStatus(true);
+  const startAudio = (songLink, key) => {
+    
+    if (previous != null) {
+      previous.pause()
+    }
+
+    setPrev(audio)
+    
+    audio.src = songLink
+
+    audio.play()
+
+    changeAudioStatus(true)
   };
 
-  const pauseAudio = () => {
-    console.log("here");
-    myRef.current.pause();
-    changeAudioStatus(false);
+  const pauseAudio = (key) => {
+
+    previous.pause()
+
+    changeAudioStatus(false)
   };
  
-  const [statsData, ] = useState({
-    loading: true,
+  const [songsData, setStats] = useState({
+    loading: false,
     data: [],
+    count: -1,
   });
 
   const initialData = Object.freeze({
@@ -48,7 +58,6 @@ function App() {
   });
 
   const [formData, updateFormData] = useState(initialData);
-  const [songs, setSongsData] = useState([])
 
   const handleChange = (e) => {
     updateFormData({
@@ -59,9 +68,17 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axiosInstance.get('?query=' + formData.query).then((res) => {
+    setStats({
+      loading: true
+    })
+
+    axiosInstance.get('search?query=' + formData.query).then((res) => {
       console.log(res)
-      setSongsData(res.data['Data'])
+      setStats({
+        loading: false,
+        data: res.data['Data'],
+        count: res.data['Data'] != null ? res.data['Data'].length : 0
+      })
     });
   }
 
@@ -83,10 +100,10 @@ function App() {
         </>
       <div id="results-container" component={Paper}>
         <>
-        { statsData.loading && songs == null || statsData.loading && songs.length == 0 ?
-          <CircularProgress />: songs.map((song, index) => {
+        {!songsData.loading && songsData.count == -1 ? <h1></h1> : songsData.loading && songsData.data == null ?
+          <CircularProgress />: !songsData.loading && songsData.count == 0 ? <h1>NOT FOUND</h1> : songsData.data.map((song, index) => {
             return (
-              <Card key={index} sx={{ display: 'inline-block', marginInline: 1, marginBlock: 1, width: 300, height: 300 }}>
+              <Card sx={{ display: 'inline-block', marginInline: 1, marginBlock: 1, width: 300, height: 300 }}>
                 <Box sx={{ display: 'inline-block', flexDirection: 'column' }}>
                   <CardContent sx={{  }}>
                     <Typography component="div" variant="h6">
@@ -97,12 +114,8 @@ function App() {
                     </Typography>
                   </CardContent>
                   <Box sx={{ display: 'inline-block', alignItems: 'center', pl: 1, pb: 1 }}>
-                    <IconButton aria-label="play/pause">
-                      <audio 
-                        ref={myRef}
-                        src={song.Link} 
-                      />
-                      {audioStatus ? (<PauseIcon sx={{ height: 38, width: 38 }} onClick={() => pauseAudio} />)  : (<PlayArrowIcon sx={{ height: 38, width: 38 }} onClikc={() => startAudio} />)}
+                    <IconButton key={index} aria-label="play/pause">
+                      {isPlaying ? <PauseIcon sx={{ height: 38, width: 38 }} onClick={() => pauseAudio(index)} />  : <PlayArrowIcon sx={{ height: 38, width: 38 }} onClick={() => startAudio(song.Link, index)} />}
                      </IconButton>
                   </Box>
                 </Box>
