@@ -74,10 +74,11 @@ function App() {
 
     axiosInstance.get('search?query=' + formData.query).then((res) => {
       console.log(res)
+      var songs = res.data['content']['media']['mediaObjects']
       setStats({
         loading: false,
-        data: res.data['Data'],
-        count: res.data['Data'] != null ? res.data['Data'].length : 0
+        data: songs,
+        count: songs != null ? songs.length : 0
       })
     });
   }
@@ -107,15 +108,15 @@ function App() {
                 <Box sx={{ display: 'inline-block', flexDirection: 'column' }}>
                   <CardContent sx={{  }}>
                     <Typography component="div" variant="h6">
-                      {song.Subtitle.split("-")[song.Subtitle.split("-").length-1].substr(0,20)}
+                      {song.name.split("-")[song.name.split("-").length-1].substr(0,20)}
                     </Typography>
                     <Typography variant="subtitle1" color="text.secondary" component="div">
-                      {song.Title.split('-')[0].substr(0,30)}
+                      {song.name.split('-')[0].substr(0,30)}
                     </Typography>
                   </CardContent>
                   <Box sx={{ display: 'inline-block', alignItems: 'center', pl: 1, pb: 1 }}>
                     <IconButton key={index} aria-label="play/pause">
-                      {isPlaying ? <PauseIcon sx={{ height: 38, width: 38 }} onClick={() => pauseAudio(index)} />  : <PlayArrowIcon sx={{ height: 38, width: 38 }} onClick={() => startAudio(song.Link, index)} />}
+                      {isPlaying ? <PauseIcon sx={{ height: 38, width: 38 }} onClick={() => pauseAudio(index)} />  : <PlayArrowIcon sx={{ height: 38, width: 38 }} onClick={() => startAudio(song.url, index)} />}
                      </IconButton>
                   </Box>
                 </Box>
@@ -123,7 +124,7 @@ function App() {
                   component="img"
                   sx={{ width: 300, height: 150 }}
                   image="https://freewareshome.com/wp-content/uploads/2022/08/apple-music-4d84eb1deedb9217bf940603688603b0.png"
-                  alt={song.Subtitle}
+                  alt={song.name}
                 />
               </Card>
             );

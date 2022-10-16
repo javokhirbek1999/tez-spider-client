@@ -1,16 +1,12 @@
 import axios from "axios";
 
 
-// const baseURL = 'http://localhost:4000/'
 const baseURL = 'https://tezspider-server.herokuapp.com/'
-
-// const token = localStorage.getItem('token')
 
 const axiosInstance = axios.create({
     baseURL: baseURL,
     timeout: 5000,
     headers: { 
-        // Authorization: token !== null ? `Token ${token}`:null,  // If no user is authenticated, leave it blank
         'Content-Type': 'application/json',
         accept: 'application/json',
     },
